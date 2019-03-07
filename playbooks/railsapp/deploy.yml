@@ -11,6 +11,14 @@
       delegate_to: "{{ groups['web'][0] }}"
 
   tasks:
+    - name: Ensure app directory exists and is writeable.
+      file:
+        path: "{{ app_directory }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0755
+
     - name: Ensure demo application is at correct release.
       git:
         repo: "{{ git_repository }}" # Git repository where the app lives.
@@ -27,7 +35,6 @@
     - include: set_rails.yml
     # THESE INCLUDED TASKS SET THE NGINX-UPSTREAM AND THE PUMA GEM AND CONFIG FILE
     - include: set_puma.yml
-
 
     - name: Install required dependencies with bundler.
       shell: "bundle install --path vendor/bundle chdir={{ app_directory }}"

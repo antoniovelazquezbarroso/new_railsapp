@@ -25,7 +25,7 @@
       }
 
   tasks:
-    - name: Add or update deploy user
+    - name: Add or update deploy user (user owning/running app files/processes)
       user:
         name: "{{ app_user }}"
         shell: /bin/bash
@@ -38,15 +38,8 @@
         key: "{{ lookup('file', '/Users/antonio/.ssh/id_rsa.pub') }}" #  Mac
   #      key: "{{ lookup('file', '/home/antonio/.ssh/id_rsa.pub') }}" #  Ubuntu
 
-    - name: Ensure app directory exists and is writeable.
-      file:
-        path: "{{ app_directory }}"
-        state: directory
-        owner: "{{ app_user }}"
-        group: "{{ app_user }}"
-        mode: 0755
 
-    # SPECIFIC DATABASE PROVISIONING TASKS
+    # SPECIFIC RAILSAPP DATABASE PROVISIONING TASKS
     # (PER DATABASE TYPE)
     - import_tasks: db_postgres_tasks.yml
       when: db_type == 'postgres'
