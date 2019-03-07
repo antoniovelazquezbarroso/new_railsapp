@@ -1,5 +1,6 @@
 ---
-# THESE TASKS ARE IMPORTED IN THE deploy.yml PLAYBOOK
+# THESE TASKS ARE IMPORTED IN THE deploy.yml 
+# when: db_type == 'postgres'
 # THEY SET POTSGRESQL REQUIRED LIBRARIES AND CONFIGURATION
 - name: Install app dependencies for postgresql.
   apt:
@@ -23,7 +24,7 @@
 
 - name: Setup app production database if not already exists
   postgresql_db:
-    name: "{{ db_database_name }}_production"
+    name: "{{ db_database_name }}"
     owner: "{{ db_username }}"
     state: present
   become: yes
@@ -39,8 +40,8 @@
 - name: Setup postgres hba entry (for postgres user and app production database)
   lineinfile:
     path: "/etc/postgresql/9.5/main/pg_hba.conf"
-    regexp: "^#?host {{ db_database_name }}_production {{ db_username }} {{ inventory_hostname }}/32 password"
-    line: "host {{ db_database_name }}_production {{ db_username }} {{ inventory_hostname }}/32 password"
+    regexp: "^#?host {{ db_database_name }} {{ db_username }} {{ inventory_hostname }}/32 password"
+    line: "host {{ db_database_name }} {{ db_username }} {{ inventory_hostname }}/32 password"
     state: present
   become: yes
   become_user: postgres

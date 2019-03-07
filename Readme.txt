@@ -27,6 +27,10 @@
     $ ansible-galaxy install -r requirements.yml
 # The installation folder is /roles because of the configuration in ansible.cfg
 
+# To run a specific playbook (i.e. railsapp/deploy.yml)
+    $ ansible-playbook playbooks/railsapp/deploy.yml -i inventories/vagrant/inventory -e "ansible_ssh_user='vagrant' ansible_ssh_private_key_file='~/.vagrant.d/insecure_private_key'"
+    
+
 # =========================================================================================================
 # IF YOU REINSTALL THE ROLES (from ansible-galaxy), CHECK FOR REQUIRED AMMENDMENTS at:
 

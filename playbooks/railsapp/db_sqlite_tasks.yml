@@ -1,5 +1,6 @@
 ---
 # THESE TASKS ARE IMPORTED IN THE deploy.yml PLAYBOOK
+# when: db_type == 'sqlite'
 # THEY SET SQLITE REQUIRED LIBRARIES
 - name: Install app dependencies for sqlite.
   apt:

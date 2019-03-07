@@ -65,4 +65,3 @@
       become: yes
       shell: "bundle exec puma -C {{ app_directory }}/config/puma.rb chdir={{ app_directory }}"
       notify: restart nginx
-      
