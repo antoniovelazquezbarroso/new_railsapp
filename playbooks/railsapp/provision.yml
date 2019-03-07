@@ -38,6 +38,16 @@
         key: "{{ lookup('file', '/Users/antonio/.ssh/id_rsa.pub') }}" #  Mac
   #      key: "{{ lookup('file', '/home/antonio/.ssh/id_rsa.pub') }}" #  Ubuntu
 
+    - name: Ensure present nginx upstream-loadbalancer config-file for railsapp-puma 
+      template:
+        src: templates/{{ app_name }}.conf.j2
+        dest: /etc/nginx/conf.d/{{ app_name }}.conf
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0664
+      when: inventory_hostname == groups.app[0] # ONLY ONCE PER APP GROUP
+      delegate_to: "{{ groups['web'][0] }}"
+
 
     # SPECIFIC RAILSAPP DATABASE PROVISIONING TASKS
     # (PER DATABASE TYPE)

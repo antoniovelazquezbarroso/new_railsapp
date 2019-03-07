@@ -64,9 +64,28 @@
         group: "{{ app_user }}"
         recurse: yes
       changed_when: False
-#      notify: restart nginx
+  
+    - name: Copy puma_commands script to server.
+      template:
+        src: puma_commands.sh.j2
+        dest: /usr/local/bin/puma
+        owner: root
+        group: root
+        mode: 0755
 
+    - name: Ensure puma pids & socket folders exist and writeable.
+      file:
+        path: "{{ app_directory }}/tmp/{{ item }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0755
+      with_items:
+        - pids
+        - sockets
+    
     - name: Start Puma server.
       become: yes
       shell: "bundle exec puma -C {{ app_directory }}/config/puma.rb chdir={{ app_directory }}"
       notify: restart nginx
+      when: app_updated.changed == true
