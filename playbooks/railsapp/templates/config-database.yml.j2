@@ -1,0 +1,32 @@
+# THIS FILE WAS ORIGINALLY COPIED FROM THE /config/database.yml.sample
+# FROM THE RAILSAPP git_repository AND ITS deploy-postgres BRANCH
+# I MADE THE FOLLOWING AMMENDMENTS
+#
+#  CLEANED UP UNNECESARY COMMENTS, FOR READABILITY
+#
+#   ADDED DATABASE CONFIGURATION VARIABLES
+# 
+#=======================================================================================
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+
+development:
+  <<: *default
+  database: myticketee_pg_development
+
+test:
+  <<: *default
+  database: myticketee_pg_test
+
+
+# AMMENDED THE FOLLOWING BLOCK
+production:
+  <<: *default
+  database: "{{ db_database_name }}"
+  username: "{{ db_username }}"
+  password: "{{ db_password }}"
+  host: "{{ groups['db'][0] }}"
+  port: 5432
+# END OF AMMENDED BLOCK

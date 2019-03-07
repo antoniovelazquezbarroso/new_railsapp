@@ -19,7 +19,7 @@
         group: "{{ app_user }}"
         mode: 0755
 
-    - name: Ensure demo application is at correct release.
+    - name: Ensure app code is cloned from git_repository at correct release.
       git:
         repo: "{{ git_repository }}" # Git repository where the app lives.
         version: "{{ git_version }}" # To choose version repository to checkout
@@ -31,10 +31,8 @@
       register: app_updated
       notify: restart nginx
 
-    # THESE INCLUDED TASKS SET RAILS SECRETS, JSON LOGS AND database.yml CONFIG
-    - include: set_rails.yml
-    # THESE INCLUDED TASKS SET THE NGINX-UPSTREAM AND THE PUMA GEM AND CONFIG FILE
-    - include: set_puma.yml
+    # SET CONFIG FILES GITIGNORED IN THE RAILSAPP GIT REPOSITORY
+    - import_tasks: repo_gitignored_files.yml
 
     - name: Install required dependencies with bundler.
       shell: "bundle install --path vendor/bundle chdir={{ app_directory }}"

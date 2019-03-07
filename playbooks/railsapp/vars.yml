@@ -1,15 +1,14 @@
 ---
 # Variables for our app.
 git_repository: https://github.com/antoniovelazquezbarroso/myticketee522.git
-git_version: master       # Allows choosing the version of the repo
+git_version: newdep       # Allows choosing the version of the repo
                           # Here it is the relevant branch name
 app_name : railsapp
 app_directory: /opt/{{ app_name }}
 app_user: "{{ app_name }}"        # OJO CON ESTA DOBLE ASIGNACION
-app_secrets:
-  dev: fe562ec1e21eecc5af4d83f6a157a7
-  test: 4408f36dd290766d2f368fdfcedf4d
-  prod: 9bf801da1a24c9a103ea86a1438caa
+
+app_master_key: 44e31d7592a97690b77402335b32769d
+
 app_environment:
   RAILS_ENV: production
 

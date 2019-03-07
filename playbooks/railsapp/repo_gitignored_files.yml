@@ -1,0 +1,37 @@
+---
+# THESE TASKS ARE INCLUDED IN THE deploy.yml PLAYBOOK
+# TO BE EXECUTED AFTER CLONING THE REPO AT THE APP FOLDER
+
+# THE TASKS USE TEMPLATES TO SET CONFIG APPLICATION FILES
+# THAT WERE GITIGNORED IN THE RAILSAPP GIT REPOSITORY
+# EITHER FOR SECURITY REASONS (master.key, db_password, API_keys)
+# OR FOR PLAYBOOK IDEMPOTENCY (Gemfile, Gemfile.lock, database.yml)
+- name: Set Repo .gitignored files with templated config files
+  template:
+    src: "templates/{{ item.src }}"
+    dest: "{{ app_directory }}/{{ item.dest }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: 0664
+  with_items:
+    - {
+      src: Gemfile.j2,
+      dest: Gemfile
+    }
+    - {
+      src: config-master.key.j2,
+      dest: config/master.key
+    }
+    - {
+      src: config-environments-production.rb.j2,
+      dest: config/environments/production.rb
+    }
+    - {
+      src: config-puma.rb.j2,
+      dest: config/puma.rb
+    }
+    - {
+      src: config-database.yml.j2,
+      dest: config/database.yml
+    }       
+  notify: restart nginx
