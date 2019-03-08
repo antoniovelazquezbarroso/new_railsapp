@@ -34,4 +34,6 @@
       src: config-database.yml.j2,
       dest: config/database.yml
     }       
-  notify: restart nginx
+  notify:
+    - restart puma
+    - restart nginx

@@ -6,6 +6,11 @@
     - vars.yml
   
   handlers:
+    # If repo_gitignored_files are changed when no changes in the git repo
+    - name: restart puma
+      command: "puma restart"
+      when: app_updated.changed == false
+
     - name: restart nginx
       service: name=nginx state=restarted
       delegate_to: "{{ groups['web'][0] }}"
@@ -46,15 +51,13 @@
         - bundle exec rake db:seed
       environment: "{{app_environment}}"
       when: app_updated.changed == true and inventory_hostname == groups.app[0]
-      notify: restart nginx
 
-    - name: Perform deployment-related assets rake tasks (ON EACH APP SERVER// PENDING CORREGIR).
+    - name: Perform deployment-related assets rake tasks (ON EACH APP SERVER).
       shell: "{{ item }} chdir={{ app_directory }}"
       with_items:
         - bundle exec rake assets:precompile
       environment: "{{app_environment}}"
       when: app_updated.changed == true
-      notify: restart nginx
 
     - name: Ensure demo application has correct user for files.
       file:
@@ -64,14 +67,6 @@
         group: "{{ app_user }}"
         recurse: yes
       changed_when: False
-  
-    - name: Copy puma_commands script to server.
-      template:
-        src: puma_commands.sh.j2
-        dest: /usr/local/bin/puma
-        owner: root
-        group: root
-        mode: 0755
 
     - name: Ensure puma pids & socket folders exist and writeable.
       file:
@@ -83,9 +78,22 @@
       with_items:
         - pids
         - sockets
-    
+  
+    - name: Copy puma_commands script to server.
+      template:
+        src: puma_commands.sh.j2
+        dest: /usr/local/bin/puma
+        owner: root
+        group: root
+        mode: 0755
+
+    # This task will do nothing if puma not running before, but will stop it if running,
+    # avoiding errors with "ADDRESS ALREADY IN USE" when running the playbook
+    - name: Stop Puma server (if it was running when changes were made to git repo)
+      command: "puma stop"
+      when: app_updated.changed == true
+
     - name: Start Puma server.
       become: yes
       shell: "bundle exec puma -C {{ app_directory }}/config/puma.rb chdir={{ app_directory }}"
-      notify: restart nginx
       when: app_updated.changed == true

@@ -48,7 +48,6 @@
       when: inventory_hostname == groups.app[0] # ONLY ONCE PER APP GROUP
       delegate_to: "{{ groups['web'][0] }}"
 
-
     # SPECIFIC RAILSAPP DATABASE PROVISIONING TASKS
     # (PER DATABASE TYPE)
     - import_tasks: db_postgres_tasks.yml
