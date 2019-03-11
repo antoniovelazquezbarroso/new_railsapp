@@ -1,0 +1,53 @@
+---
+- hosts: replica
+  become: true  # you need sudo
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+  - name: Stop PostgreSQL
+    service:
+      name: postgresql
+      state: stopped
+  
+  - name: Clear out data directory
+    shell: rm -rf {{ pgsqlrep_data_path }}/* warn=False
+  
+  - name: Create base backup
+    command: pg_basebackup -X stream -D {{ pgsqlrep_data_path }} -h {{ groups['db'][0] }} -U {{ pgsqlrep_user }}
+    become: true
+    become_user: postgres
+    # See: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
+    # Avoid problems becoming postgres user
+    vars:
+      ansible_ssh_pipelining: true
+
+  - name: Create recovery.conf
+    template:
+      src: recovery.conf.j2
+      dest: "{{ pgsqlrep_data_path }}/recovery.conf"
+      owner: postgres
+      group: postgres
+      mode: '0644'
+  
+  - name: Enable hot standby
+    lineinfile:
+      state: present
+      backup: true
+      dest: "{{ pgsqlrep_config_path }}/postgresql.conf"
+      regexp: '^#?hot_standby = \w+(\s+#.*)'
+      line: 'hot_standby = yes\1'
+      backrefs: true
+    become: true
+    become_user: postgres
+    # See: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
+    # Avoid problems becoming postgres user
+    vars:
+      ansible_ssh_pipelining: true
+  
+  - name: Start and enable PostgreSQL
+    service:
+      name: postgresql
+      state: started
+      enabled: true

@@ -1,5 +1,5 @@
 ---
-- hosts: db
+- hosts: db, replica
   become: true  # you need sudo
 
   handlers:
