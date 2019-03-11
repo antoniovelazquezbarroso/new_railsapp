@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
   # Define required VMs with name and static private IP addresses.
   boxes = [
     { :name => "vm49", :ip => "192.168.2.49" },  # FOR MONITORING AND DB REPLICATION
-#    { :name => "vm59", :ip => "192.168.2.59" },  # app1 RAILS, web AND db SERVER (MASTER)
+    { :name => "vm59", :ip => "192.168.2.59" },  # app1 RAILS, web AND db SERVER (MASTER)
 #    { :name => "vm69", :ip => "192.168.2.69" },  # app2 RAILS SERVER
 #    { :name => "vm70", :ip => "192.168.2.70" }, # FOR FUTURE NEEDS (¿¿ ??)
   ]
@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
       config.vm.network :private_network, ip: opts[:ip]
 
       # Provision all the VMs using Ansible after last VM is up.
-      if opts[:name] == "vm49"
+      if opts[:name] == "vm59"
 #      if opts[:name] == "vm70"         # The last vhost 
         config.vm.provision "ansible" do |ansible|
           ansible.playbook = "playbooks/main.yml"
