@@ -3,9 +3,9 @@
 # To provision with vagrant just run vagrant up
 
 # To provision with metal inventory you should run 
-#    $ ansible-playbook playbooks/configure.yml -i inventories/metal/inventory --ask-become-pass
+#    $ ansible-playbook playbooks/main.yml -i inventories/metal/inventory --ask-become-pass
 #     or 
-#    $ ansible-playbook playbooks/configure.yml -i inventories/metal/inventory -v -b -c paramiko --ask-become-pass
+#    $ ansible-playbook playbooks/main.yml -i inventories/metal/inventory -v -b -c paramiko --ask-become-pass
 
 
 # To redirect external traffic from the external router to the web server of railsapp
@@ -14,13 +14,6 @@
 # and to redirect with a proxy this traffic to the web server of railsapp
 # (it is 192.168.1.30 in my metal inventory)
 # see sample config for the redirect proxy at /playbooks/nginx/files/proxypass.conf.sample 
-
-
-# To provision with digital ocean or AWS
-# Uncomment in /playbooks/provision.yml file the provisioner to be used
-# Play the /playbooks/provision.yml playbook on the corresponding inventory file
-    $ ansible-playbook -i inventories/digitalocean/inventory playbooks/provision.yml
-    $ ansible-playbook -i inventories/aws/inventory playbooks/provision.yml
 
 
 # To install the required roles defined at requirements.yml
