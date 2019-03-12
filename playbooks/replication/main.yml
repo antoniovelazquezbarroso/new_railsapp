@@ -1,3 +1,0 @@
----
-- import_playbook: master.yml
-- import_playbook: replica.yml
