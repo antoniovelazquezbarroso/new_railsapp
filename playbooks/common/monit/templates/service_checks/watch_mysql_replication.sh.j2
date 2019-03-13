@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# SEE playbooks/common/monit/main.yml
+# SEE service_checks/mysql.j2
+
+#========  MySQL REPLICATION CHECK  =================================================
+# THIS MYSQL_REPLICATION_CHECK SCRIPT watch_mysql_replication.sh
+# WILL BE PLACED BY THE playbooks/common/monit/main.yml PLAYBOOK
+# AT THE /etc/monit/scripts/ FOLDER
+# THE SCRIPT WILL BE RUN BY CRON (EVERY MINUTE) AS THE root USER,
+# CREATING THE FILE mysql_replication_timestamp_monit_watch
+# (ALSO AT THE /etc/monit/scripts/ FOLDER).
+# MONIT WILL CHECK AND ALERT IF THE TIMESTAMP OF THAT FILE IS OLDER THAN 3 MINUTES
+# SEE service/checks/mysql.j2
+
+# SEE http://www.elevatedcode.com/2007/12/05/replication-monitoring-with-monit.html
+# AND http://wesdeboer.com/monitoring-mysql-slave-replication-is-running/
+
+# MySQL variables.
+MYSQL=/usr/bin/mysql
+MYSQL_CREDENTIALS="-ureplication -psecret"
+NOW=$(date +"%T")
+# THIS IS ONLY FOR TESTING
+# BE VERY CAREFUL
+# DATA ARE HARDCODED AND SECURITY SENSIBLE
+# MYSQL USER replication WAS DEFINED BY playbooks/mysql/main.yml
+# AND CREATED AND ASSIGNED PRIVILEGES AT roles/mysql/tasks/replication.yml
+
+
+SLAVE_STATUS=`$MYSQL $MYSQL_CREDENTIALS -e "SHOW SLAVE STATUS \G"`
+IO=`echo "$SLAVE_STATUS" | grep 'Slave_IO_Running:' | awk '{print $2}'`
+SQL=`echo "$SLAVE_STATUS" | grep 'Slave_SQL_Running:' | awk '{print $2}'`
+if [ "Yes" == "$IO" ] && [ "Yes" == "$SQL" ]; then
+        echo "LAST REPLICATION CHECK WAS $NOW" > /etc/monit/scripts/mysql_replication_timestamp_monit_watch
+fi
+exit
+

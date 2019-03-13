@@ -1,0 +1,44 @@
+---
+#========  WATCH MySQL REPLICATION MONIT CHECK  =======================================
+# THE MYSQL_REPLICATION_CHECK SCRIPT watch_mysql_replication.sh
+# WILL BE PLACED BY THIS TASK AT THE /etc/monit/scripts/ FOLDER.
+# THE SCRIPT WILL BE RUN BY CRON, AS THE root USER, EVERY MINUTE,
+# CREATING THE FILE mysql_replication_timestamp_monit_watch
+# (ALSO AT THE /etc/monit/scripts/ FOLDER).
+# MONIT WILL CHECK AND ALERT IF THAT FILE'S TIMESTAMP IS OLDER THAN 3 MINUTES
+# SEE service/checks/mysql.j2
+
+# SEE http://www.elevatedcode.com/2007/12/05/replication-monitoring-with-monit.html
+# AND http://wesdeboer.com/monitoring-mysql-slave-replication-is-running/
+
+    - name: Copy watch_mysql_replication checking script to server.
+      template:
+        src: service_checks/watch_mysql_replication.sh.j2
+        dest: /etc/monit/scripts/watch_mysql_replication.sh
+        owner: root
+        group: root
+        mode: 0744
+
+    # The MySQL replication user was created by playbooks/mysql/main.yml
+    # and assigned privileges at roles/mysql/tasks/replication.yml
+    # Here we make sure the user has privileges to check the slave(SHOW SLAVE STATUS)
+    - name: Append Replication privileges for the MySQL user for DB Replication.
+      mysql_user:
+        name: replication
+        host: "{{ item }}"
+        priv: "*.*:REPLICATION CLIENT"
+        append_privs: yes
+        password: secret
+      with_items:
+        - "127.0.0.1"
+        - "::1"
+        - "localhost"
+
+    - name: Configure cron job for mysql-replication checking script.
+      cron:
+        name: "MySQL-Replication cron job"
+        minute: "*"
+        hour: "*"
+        user: root
+        job: /etc/monit/scripts/watch_mysql_replication.sh
+        state: present
