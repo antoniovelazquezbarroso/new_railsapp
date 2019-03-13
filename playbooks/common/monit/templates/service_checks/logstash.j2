@@ -1,0 +1,6 @@
+#logstash
+check process logstash
+   with pidfile /var/run/logstash.pid
+   start program = "/usr/sbin/service logstash start"
+   stop  program = "/usr/sbin/service logstash stop"
+   if 5 restarts within 5 cycles then timeout

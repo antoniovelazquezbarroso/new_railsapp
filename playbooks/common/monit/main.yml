@@ -1,0 +1,65 @@
+---
+- hosts: all
+  become: yes
+
+  vars_files:
+    - vars.yml
+
+  handlers:
+    - name: restart monit
+      service:
+        name: monit
+        state: restarted
+
+    - name: reload monit
+      command: "monit reload"
+
+  tasks:
+    - name: Make sure monit is installed
+      apt:
+        pkg: monit
+        state: present
+
+    - name: Update the monit configuration (/etc/monit/monitrc)
+      template:
+        src: "etc_monit_monitrc.j2"
+        dest: "/etc/monit/monitrc"
+      notify:
+        - restart monit
+
+    - name: Copy the monit services config files
+      template:
+        src: "service_checks/{{item}}.j2"
+        dest: "/etc/monit/conf.d/{{item}}"
+      with_items: "{{ monit_checked_services }}"
+      notify:
+        - reload monit
+
+    # Create folder for monit service_check related scripts
+    - name: Ensure /etc/monit/scripts directory exists and is writeable.
+      file:
+        path: /etc/monit/scripts
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+
+    # THESE INCLUDED TASKS SET A MONIT CHECK OVER DATABASE REPLICATION
+#    - include: check_mysql_replication.yml
+#      when: (mysql_replication_role is defined) and mysql_replication_role == 'slave'
+
+    - name: Monit | Determine queued messages
+      command: "ls -1 {{monit_eventqueue_directory}}/"
+      register: monit_queued_messages
+      when: not monit_email_enable or not monit_eventqueue_enable
+      changed_when: False
+
+    - name: Monit | Remove queued messages
+      file:
+        path: "{{monit_eventqueue_directory}}/{{item}}"
+        state: absent
+      when: not monit_email_enable or not monit_eventqueue_enable
+      with_items: monit_queued_messages.stdout_lines
+
+
+

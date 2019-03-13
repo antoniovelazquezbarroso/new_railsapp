@@ -1,0 +1,11 @@
+#mysql
+check process mysql with pidfile /var/run/mysqld/mysqld.pid
+  start program = "/usr/sbin/service mysql start" with timeout 40 seconds
+  stop program  = "/usr/sbin/service mysql stop"
+  if failed host 127.0.0.1 port 3306 protocol mysql then restart
+  if 5 restarts within 5 cycles then timeout
+
+
+check file MySQL-Replication with path /etc/monit/scripts/mysql_replication_timestamp_monit_watch
+  if timestamp > 3 minutes then alert
+

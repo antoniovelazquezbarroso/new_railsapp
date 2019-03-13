@@ -1,0 +1,36 @@
+#puma
+
+# IN CASE OF DEPLOYMENT WITH playbooks/railsapp/deploy.yml (DEPLOYS TO app_directory)
+
+check process puma
+  with pidfile /opt/railsapp/tmp/pids/puma.pid
+  start program = "/bin/su - root -c 'cd /opt/railsapp && bundle exec puma -C config/puma.rb '" with timeout 50 seconds
+  stop program = "/bin/su - root -c 'kill -s SIGTERM `cat /opt/railsapp/tmp/pids/puma.pid`'"
+
+# SEE https://gist.github.com/sudara/8653130 FOR A DETAILED EXPLANATION
+# AND /playbooks/railsapp/set_puma.yml                  , it places the puma_commands script at /usr/local/bin/puma
+# AND /playbooks/railsapp/templates/puma_commands.sh.j2 , it provides the kill_worker command
+# AND /playbooks/railsapp/templates/config-puma.rb.j2   , it creates files with puma-workers pid numbers
+check process puma_worker_0
+  with pidfile /opt/railsapp/tmp/pids/puma_worker_0.pid
+  if totalmem is greater than 150 MB for 2 cycles then exec "/bin/bash -c '/usr/local/bin/puma kill_worker 0'"
+
+check process puma_worker_1
+  with pidfile /opt/railsapp/tmp/pids/puma_worker_1.pid
+  if totalmem is greater than 150 MB for 2 cycles then exec "/bin/bash -c '/usr/local/bin/puma kill_worker 1'"
+
+
+# IN CASE OF DEPLOYMENT WITH CAPISTRANO (DEPLOYS TO app_directory/current)
+
+#check process puma
+#  with pidfile /opt/railsapp/current/tmp/pids/puma.pid
+#  start program = "/bin/su - root -c 'cd /opt/railsapp/current && bundle exec puma -C config/puma.rb '" with timeout 50 seconds
+#  stop program = "/bin/su - root -c 'kill -s SIGTERM `cat /opt/railsapp/current/tmp/pids/puma.pid`'"
+
+#check process puma_worker_0
+#  with pidfile /opt/railsapp/current/tmp/pids/puma_worker_0.pid
+#  if totalmem is greater than 150 MB for 2 cycles then exec "/bin/bash -c '/usr/local/bin/puma kill_worker 0'"
+#
+#check process puma_worker_1
+#  with pidfile /opt/railsapp/current/tmp/pids/puma_worker_1.pid
+#  if totalmem is greater than 150 MB for 2 cycles then exec "/bin/bash -c '/usr/local/bin/puma kill_worker 1'"
