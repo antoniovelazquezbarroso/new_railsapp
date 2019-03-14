@@ -1,0 +1,47 @@
+---
+# ======================================================================
+# Variables for filebeat configuration
+filebeat_output_logstash_enabled: true
+filebeat_output_logstash_hosts: "{{ groups['elk'][0] }}:5400"
+
+filebeat_prospectors:
+  - paths:
+      - /var/log/syslog
+    input_type: log
+    document_type: syslog
+
+  - paths:
+      - /var/log/monit.log
+    input_type: log
+    document_type: monit
+
+  - paths:
+      - /var/log/mysql/*.log
+    input_type: log
+    document_type: mysql
+
+  - paths:
+      - /var/log/nginx/*.log
+    input_type: log
+    document_type: nginx
+
+  - paths:
+      - /opt/railsapp/log/production.json
+#      - /opt/railsapp/current/log/production.json # IF CAPISTRANO DEPLOYED 
+    input_type: log
+    document_type: railsapp_production_json
+    json.keys_under_root: true
+    json.add_error_key: true
+    tags: railsapp_json
+
+  - paths:
+      - /var/log/nginx/access.json
+#   NEEDS AMENDMENT IF CAPISTRANO DEPLOYED (SEE railsapp_vhost.conf ON myticketee_mysql)      
+    input_type: log
+    document_type: nginx_access_json
+    json.keys_under_root: true
+    json.add_error_key: true
+    tags: nginx_json
+# For fine-grained group-based configuration of filebeat configuration
+# Comment-out the former definitions and place the right ones
+# in a .yml group_vars or host_vars file, named after the relevant inventory group/host
