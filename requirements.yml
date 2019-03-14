@@ -1,6 +1,8 @@
 ---
+# MAIN
 - src: geerlingguy.git
 - src: geerlingguy.nodejs
 - src: rvm.ruby
 
-
+# COMMON SERVICES
+- src: geerlingguy.filebeat
