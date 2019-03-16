@@ -1,0 +1,10 @@
+---
+# Answering on all interfaces ( default is localhost only )
+elasticsearch_network_host: '0.0.0.0'
+
+# JUST ADDED MORE RAM (in Vagrantfile set v.memory = 3072)
+# 512 Mb is not enough to start
+#  # SEE https://github.com/geerlingguy/ansible-role-elasticsearch/issues/7
+#  # AND https://github.com/geerlingguy/ansible-role-elasticsearch/pull/42 
+#  elasticsearch_heap_size_min: 512m
+#  elasticsearch_heap_size_max: 512m
