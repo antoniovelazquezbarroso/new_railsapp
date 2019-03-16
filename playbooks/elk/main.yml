@@ -1,0 +1,56 @@
+---
+- hosts: elk
+  gather_facts: yes
+  become: yes
+
+  vars_files:
+    - vars.yml
+
+  pre_tasks:
+    - name: Update apt cache if needed.
+      apt: update_cache=yes cache_valid_time=86400
+
+  roles:
+    - geerlingguy.java
+    - geerlingguy.elasticsearch
+    - geerlingguy.kibana
+    - geerlingguy.logstash
+
+  tasks:
+# Remove legacy configuration (coming from the logstash role)
+    - name: Remove legacy configuration (coming from the logstash role)
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+      - /etc/logstash/conf.d/10-syslog.conf
+      - /etc/logstash/conf.d/11-nginx.conf
+      - /etc/logstash/conf.d/12-apache.conf
+      - /etc/logstash/conf.d/14-solr.conf
+      - /etc/logstash/conf.d/15-drupal.conf
+# To make the playbook run idempotently you should
+# amend the role geerlingguy.logstash
+# comment the line - include: config.yml at tasks/main.yml
+# to avoid creating the legacy configuration (in fact it seems not to work)
+# If you make this amendment you can even delete this "Remove legacy ..." task
+
+    - name: Copy logstash pipeline configuration files.
+      copy:
+        src: "{{ item }}"
+        dest: "/etc/logstash/conf.d/"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+      - files/01-beats-input.conf
+      - files/02-local-syslog-input.conf
+#      - files/03-local-apache-input.conf
+#      - files/04-local-mysql-input.conf
+      - files/05-local-monit-input.conf
+      - files/06-local-logstash-input.conf
+      - files/10-syslog-filter.conf
+#      - files/12-apache-filter.conf
+#      - files/13-mysql-filter.conf  # DOES NOT WORK PROPERLY
+      - files/14-nginx-filter.conf
+      - files/30-elasticsearch-output.conf
+      notify: restart logstash    

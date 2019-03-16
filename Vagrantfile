@@ -29,7 +29,15 @@ Vagrant.configure("2") do |config|
 
       # Provision all the VMs using Ansible after last VM is up.
       if opts[:name] == "vm59"
-#      if opts[:name] == "vm70"         # The last vhost 
+#      if opts[:name] == "vm70"         # The last vhost
+
+#     vm59 hosts ELK, with heavy memory requirements
+        config.vm.provider :virtualbox do |v|
+          v.memory = 3072
+          v.cpus = 1
+        end
+
+#      run the ansible provisioner
         config.vm.provision "ansible" do |ansible|
           ansible.playbook = "playbooks/main.yml"
           ansible.inventory_path = "inventories/vagrant/inventory"

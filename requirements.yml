@@ -6,3 +6,9 @@
 
 # COMMON SERVICES
 - src: geerlingguy.filebeat
+
+# ELK
+- src: geerlingguy.java
+- src: geerlingguy.elasticsearch
+- src: geerlingguy.kibana
+- src: geerlingguy.logstash

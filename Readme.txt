@@ -30,7 +30,11 @@
 #   role rvm.ruby/tasks/rubies.yml, incluir "changed_when: False" como ultima linea en los tasks
 #         Symlink ruby related binaries on the system path, y
 #         Symlink bundler binaries on the system path
-#         es solo por estetica, para que no salga como "changed" al correr el playbook
+#         es solo por estetica, para que no salga recurrentemente como "changed" al correr el playbook
+
+#   role logstash/tasks/main.yml, # comment the line - include: config.yml at tasks/main.yml
+#         to avoid creating the legacy configuration of the role (in fact it seems not to work)
+#         es solo por estetica, para que no salga recurrentemente como "changed" al correr el playbook
 
 #   role backup/templates/backup.sh.j2, incluir monit check
 #        (añadir NOW=$(date +"%T"), y
