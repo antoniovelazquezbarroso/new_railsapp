@@ -42,15 +42,26 @@
         group: root
         mode: 0644
       with_items:
-      - files/01-beats-input.conf
+#      - files/01-beats-input.conf
       - files/02-local-syslog-input.conf
 #      - files/03-local-apache-input.conf
 #      - files/04-local-mysql-input.conf
       - files/05-local-monit-input.conf
       - files/06-local-logstash-input.conf
+      - files/09-mutate_host_hostname-filter.conf
       - files/10-syslog-filter.conf
 #      - files/12-apache-filter.conf
 #      - files/13-mysql-filter.conf  # DOES NOT WORK PROPERLY
-      - files/14-nginx-filter.conf
+#      - files/14-nginx-filter.conf
       - files/30-elasticsearch-output.conf
-      notify: restart logstash    
+      notify: restart logstash
+
+
+    - name: Install required Elasticsearch plugins
+      elasticsearch_plugin:
+        name: "{{ item }}"
+        state: present
+      with_items:
+      - ingest-user-agent
+      - ingest-geoip
+      notify: restart elasticsearch
