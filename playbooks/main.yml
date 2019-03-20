@@ -4,7 +4,8 @@
 - import_playbook: nginx/main.yml
 - import_playbook: railsapp/main.yml
 
+- import_playbook: elk/main.yml
+
 - import_playbook: common/monit/main.yml
 - import_playbook: common/filebeat/main.yml
 
-- import_playbook: elk/main.yml
