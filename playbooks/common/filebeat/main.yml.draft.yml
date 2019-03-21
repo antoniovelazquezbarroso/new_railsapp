@@ -1,0 +1,74 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: yes
+
+  vars_files:
+    - vars.yml
+
+  handlers:
+    - name: restart filebeat
+      service: name=filebeat state=restarted
+
+  tasks:
+    - name: Update apt cache if needed.
+      apt: update_cache=yes cache_valid_time=86400
+
+    - name: Ensure dependency apt-transport-https is installed (Ubuntu).
+      apt: name=apt-transport-https state=present
+    
+    - name: Add Elastic apt key.
+      apt_key:
+        url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        id: 46095ACC8548582C1A2699A9D27D666CD88E42B4
+        state: present
+    
+    - name: Add Elastic repository.
+      apt_repository:
+        repo: 'deb https://artifacts.elastic.co/packages/6.x/apt stable main'
+        state: present
+        update_cache: true
+    
+    - name: Install Filebeat.
+      package: name=filebeat state=present
+
+#    - name: Install Elastic Beats
+#      package: name={{ item }} state=present
+#      with_items:
+#        - filebeat
+#        - metricbeat
+#        - packetbeat
+    
+    - name: Copy Filebeat configuration.
+      template:
+        src: filebeat.yml.j2
+        dest: /etc/filebeat/filebeat.yml
+        owner: root
+        group: root
+        mode: 0644
+      notify: restart filebeat
+
+    - name: Enable Filebeat modules
+      command: mv /etc/filebeat/modules.d/{{ item }}.yml.disabled /etc/filebeat/modules.d/{{ item }}.yml
+      args:
+        removes: /etc/filebeat/modules.d/{{ item }}.yml.disabled
+        creates: /etc/filebeat/modules.d/{{ item }}.ym
+      with_items: "{{ filebeat_modules }}"
+      notify: restart filebeat
+
+    - name: Ensure Filebeat is started and enabled at boot.
+      service:
+        name: filebeat
+        state: started
+        enabled: true
+
+#    - name: Ensure Beats are started and enabled at boot.
+#      service:
+#        name: "{{ item }}"
+#        state: started
+#        enabled: true
+#      with_items:
+#        - filebeat
+#        - metricbeat
+#        - packetbeat
+
