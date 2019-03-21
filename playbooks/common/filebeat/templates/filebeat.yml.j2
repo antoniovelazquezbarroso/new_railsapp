@@ -1,8 +1,9 @@
 ######################## Filebeat Configuration ##############################
 
-#      #==========================  Modules configuration ===========================
-#      filebeat.modules: {{ filebeat_modules | to_json | default({}) }}
-#      
+#==========================  Modules configuration ===========================
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+
 #=========================== Filebeat inputs =================================
 filebeat.inputs:
 - type: log
@@ -10,7 +11,6 @@ filebeat.inputs:
   paths:
     - /var/log/monit.log
     - /var/log/filebeat/filebeat
-    - /var/log/nginx/access.log
     - /opt/railsapp/log/puma.stderr.log
     - /opt/railsapp/log/puma.stdout.log
 
@@ -20,49 +20,40 @@ filebeat.inputs:
   json.add_error_key: true
   paths:
     - /var/log/nginx/access.json
-#    - /var/log/logstash/logstash-plain.log
     - /opt/railsapp/log/production.json
 
-#================================ Outputs ======================================
-
-# Configure what output to use when sending the data collected by the beat.
-
-#      #-------------------------- Elasticsearch output -------------------------------
-#      output.elasticsearch:
-#        # Boolean flag to enable or disable the output module.
-#        enabled: true
-#        hosts: ["{{ groups['elk'][0] }}:9200"]
-#        index: "logstash-%{+yyyy.MM.dd}"
-#      setup.template.name: "logstash"
-#      setup.template.pattern: "logstash-*"
-
-#----------------------------- Logstash output ---------------------------------
-output.logstash:
+#-------------------------- Elasticsearch output -------------------------------
+output.elasticsearch:
   # Boolean flag to enable or disable the output module.
   enabled: true
+  hosts: ["{{ groups['elk'][0] }}:9200"]
+#  index: "logstash-%{+yyyy.MM.dd}"
+#setup.template.name: "logstash"
+#setup.template.pattern: "logstash-*"
 
-  # The Logstash hosts
-  hosts: ["{{ groups['elk'][0] }}:5044"]
-  index: "logstash-%{+yyyy.MM.dd}"
+
 #============================== Dashboards =====================================
 #           # These settings control loading the sample dashboards to the Kibana index. 
-#       setup.dashboards.enabled: true
-#       setup.dashboards.index: "logstash-*"
-#       setup.dashboards.always_kibana: true
+setup.dashboards.enabled: true
+#setup.dashboards.index: "logstash-*"
+setup.dashboards.always_kibana: true
      
 #============================== Kibana =====================================
 #       # Starting with Beats version 6.0.0, the dashboards are loaded via the Kibana API.
 #       # This requires a Kibana endpoint configuration.
-#       setup.kibana:
-#         host: "{{ groups['elk'][0] }}:5601"
-#         # Use SSL settings for HTTPS. Default is true.
-#         ssl.enabled: false
+
+setup.kibana:
+   host: "{{ groups['elk'][0] }}:5601"
+
+        # Use SSL settings for HTTPS. Default is true.
+
+ssl.enabled: false
 
 #================================ Logging ======================================
 logging.to_files: true
 logging.files:
   path: /var/log/filebeat
   name: filebeat
-  rotateeverybytes: 10485760 # = 10MB
+  rotateeverybytes: 10485760 # = 100MB
   keepfiles: 7
   permissions: 0600
