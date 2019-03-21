@@ -42,7 +42,7 @@
         group: root
         mode: 0644
       with_items:
-#      - files/01-beats-input.conf
+      - files/01-beats-input.conf
       - files/02-local-syslog-input.conf
 #      - files/03-local-apache-input.conf
 #      - files/04-local-mysql-input.conf

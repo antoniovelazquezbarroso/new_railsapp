@@ -27,23 +27,23 @@ filebeat.inputs:
 
 # Configure what output to use when sending the data collected by the beat.
 
-#-------------------------- Elasticsearch output -------------------------------
-output.elasticsearch:
-  # Boolean flag to enable or disable the output module.
-  enabled: true
-  hosts: ["{{ groups['elk'][0] }}:9200"]
-  index: "logstash-%{+yyyy.MM.dd}"
-setup.template.name: "logstash"
-setup.template.pattern: "logstash-*"
+#      #-------------------------- Elasticsearch output -------------------------------
+#      output.elasticsearch:
+#        # Boolean flag to enable or disable the output module.
+#        enabled: true
+#        hosts: ["{{ groups['elk'][0] }}:9200"]
+#        index: "logstash-%{+yyyy.MM.dd}"
+#      setup.template.name: "logstash"
+#      setup.template.pattern: "logstash-*"
 
 #----------------------------- Logstash output ---------------------------------
-#     output.logstash:
-#       # Boolean flag to enable or disable the output module.
-#       enabled: true
-#     
-#       # The Logstash hosts
-#       hosts: ["{{ groups['elk'][0] }}:5044"]
-#     #  index: "logstash-%{+yyyy.MM.dd}"
+output.logstash:
+  # Boolean flag to enable or disable the output module.
+  enabled: true
+
+  # The Logstash hosts
+  hosts: ["{{ groups['elk'][0] }}:5044"]
+  index: "logstash-%{+yyyy.MM.dd}"
 #============================== Dashboards =====================================
 #           # These settings control loading the sample dashboards to the Kibana index. 
 #       setup.dashboards.enabled: true
