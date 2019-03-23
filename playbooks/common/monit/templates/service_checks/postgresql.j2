@@ -1,0 +1,9 @@
+#postgresql
+
+check process postgresql with pidfile /var/run/postgresql/9.5-main.pid
+   start program = "/etc/init.d/postgresql start"
+   stop  program = "/etc/init.d/postgresql stop"
+if failed host localhost port 5432 type TCP then restart
+if failed host localhost port 5432 type TCP then alert
+if 2 restarts within 2 cycles then alert
+if 5 restarts within 5 cycles then timeout

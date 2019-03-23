@@ -7,12 +7,13 @@ monit_checked_services:
   - backup
   - cron
 #  - delayed_job
-#  - elasticsearch
+  - elasticsearch
 #  - logstash
-  - mysql
-  - nginx
+#  - mysql
+#  - nginx
   - ntp
-  - postfix
+#  - postfix
+  - postgresql
   - puma
   - rsyslog
 #  -sidekiq

@@ -6,5 +6,5 @@
 - import_playbook: elk/main.yml
 
 - import_playbook: common/monit/main.yml
-- import_playbook: common/filebeat/main.yml
+- import_playbook: common/beats/main.yml
 
