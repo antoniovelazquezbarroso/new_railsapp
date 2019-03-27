@@ -1,0 +1,9 @@
+---
+# THESE DEFAULTS SHOULD BE OVERWRITTEN, DEPENDING ON THE GROUP OR HOST,
+# THROUGH group-vars OR hostvars DEFINED VARIABLES
+logrotate_scripts:
+  - monit
+  - mysql-server
+  - nginx
+  - railsapp
+  - rsyslog

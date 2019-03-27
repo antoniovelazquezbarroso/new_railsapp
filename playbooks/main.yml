@@ -9,3 +9,8 @@
 - import_playbook: common/monit/main.yml
 - import_playbook: common/beats/main.yml
 
+- import_playbook: common/backup/main.yml
+- import_playbook: common/firewall/main.yml
+- import_playbook: common/logrotate/main.yml
+- import_playbook: common/ntp/main.yml
+- import_playbook: common/security/main.yml

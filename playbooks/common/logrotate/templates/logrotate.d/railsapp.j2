@@ -1,0 +1,13 @@
+# Ansible managed
+# /etc/logrotate.d/railsapp
+
+/opt/railsapp/log/*.log /opt/railsapp/log/*.json {
+  weekly
+  size 5M
+  rotate 13
+  missingok
+  compress
+  delaycompress
+  notifempty
+  copytruncate
+}

@@ -1,0 +1,19 @@
+---
+- hosts: all
+  become: yes
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Install logrotate
+      package:
+        name: logrotate
+        state: present
+    - name: Copy the logrotate scripts to /etc/logrotate.d/
+      template:
+        src: "logrotate.d/{{item}}.j2"
+        dest: "/etc/logrotate.d/{{item}}"
+      with_items: "{{ logrotate_scripts }}"
+ 
+
+
+

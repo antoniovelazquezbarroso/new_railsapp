@@ -1,0 +1,12 @@
+# Ansible managed
+# /etc/logrotate.d/monit
+
+/var/log/monit.log {
+  weekly
+  size 1M
+  rotate13
+  missingok
+  notifempty
+  copytruncate
+  create 0644 root root
+  }
