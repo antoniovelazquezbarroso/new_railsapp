@@ -1,0 +1,70 @@
+---
+- hosts: all
+  become: yes
+  vars_files:
+    - vars.yml
+
+  pre_tasks:
+
+#  Configure backup user account with SSH authentication keys
+#  that allow him to deliver backups via SSH
+#  to the Remote Backup Server (Qnap)
+    - name: Add or update backup user
+      user:
+        name: "{{ backup_user }}"
+        shell: /bin/bash
+        home: /home/{{ backup_user }}
+
+#  This task is not necessary. Why would you want to access as backup_user ?
+#  Was useful while testing
+#    - name: Set authorized key from file (for backup user)
+#      authorized_key:
+#        user: "{{ backup_user }}"
+#        state: present
+#        key: "{{ lookup('file', '/Users/antonio/.ssh/id_rsa.pub') }}" #  Mac
+#  #      key: "{{ lookup('file', '/home/antonio/.ssh/id_rsa.pub') }}" #  Ubuntu
+
+    - name: Add .ssh folder to /home/backup
+      file:
+        path: /home/{{ backup_user }}/.ssh
+        state: directory
+        owner: "{{ backup_user }}"
+        group: "{{ backup_user }}"
+        mode: 0700
+
+    - name: Copy ssh client config file (for backup user)
+      copy:
+        src: ssh_config
+        dest: /home/{{ backup_user }}/.ssh/config
+        owner: "{{ backup_user }}"
+        group: "{{ backup_user }}"
+        mode: 0644
+
+    - name: Copy backup key-private-file (for backup user)
+      copy:
+        src: ssh_key_backup
+        dest: /home/{{ backup_user }}/.ssh/backup
+        owner: "{{ backup_user }}"
+        group: "{{ backup_user }}"
+        mode: 0600
+
+    - name: Copy backup key-public-file (for backup user)
+      copy:
+        src: ssh_key_backup.pub
+        dest: /home/{{ backup_user }}/.ssh/backup.pub
+        owner: "{{ backup_user }}"
+        group: "{{ backup_user }}"
+        mode: 0644
+
+#     NO ME GUSTA LA SIGUIENTE SOLUCIÓN (¿NO SOBREESCRIBE EL GRUPO DEL RAILSAPP FOLDER?)
+#     ¿COMO DARLE DERECHOS DE LECTURA SOBRE syslog (¿Hacerle del grupo adm?)
+#    - name: Ensure backup user permissions over the folders to be backed up
+#      file:
+#        path: "{{ item }}"
+#        state: directory
+#        group: "{{ backup_user }}"
+#        mode: 0775
+#      with_items: backup_directories
+
+  roles:
+    - geerlingguy.backup

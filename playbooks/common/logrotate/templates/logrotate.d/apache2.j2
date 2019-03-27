@@ -1,0 +1,17 @@
+# Ansible managed
+# /etc/logrotate.d/apache2
+
+/var/log/apache2/*.log {
+  weekly
+  size 5M
+  rotate 13
+  missingok
+  compress
+  delaycompress
+  notifempty
+  create 0640 root adm
+  sharedscripts
+  postrotate
+    /etc/init.d/apache2 reload > /dev/null
+  endscript
+  }

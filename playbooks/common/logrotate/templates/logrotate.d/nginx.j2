@@ -1,0 +1,15 @@
+# Ansible managed
+# /etc/logrotate.d/nginx
+
+/var/log/nginx/*.log /var/log/nginx/*.json {
+  weekly
+  size 5M
+  rotate 13
+  missingok
+  compress
+  delaycompress
+  copytruncate
+  postrotate
+    [ -s /run/nginx.pid ] && kill -USR1 `cat /run/nginx.pid`
+  endscript
+  }

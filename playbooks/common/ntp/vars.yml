@@ -1,0 +1,3 @@
+---
+ntp_enabled: true   # It's the default value
+ntp_timezone: Europe/Madrid

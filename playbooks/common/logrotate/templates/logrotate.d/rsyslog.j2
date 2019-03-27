@@ -1,0 +1,17 @@
+# Ansible managed
+# /etc/logrotate.d/rsyslog
+
+/var/log/syslog
+{
+    weekly
+    rotate 13
+    size 5M
+    missingok
+    notifempty
+    delaycompress
+    compress
+    create 0644 syslog adm
+    postrotate
+        invoke-rc.d rsyslog rotate > /dev/null
+    endscript
+}

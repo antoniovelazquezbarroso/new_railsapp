@@ -5,10 +5,13 @@
 - src: rvm.ruby
 
 # COMMON SERVICES
-- src: geerlingguy.filebeat
+- src: geerlingguy.backup
+- src: geerlingguy.firewall
+- src: geerlingguy.ntp
+- src: geerlingguy.security
 
 # ELK
 - src: geerlingguy.java
 - src: geerlingguy.elasticsearch
 - src: geerlingguy.kibana
-- src: geerlingguy.logstash
+#- src: geerlingguy.logstash
