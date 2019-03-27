@@ -1,0 +1,15 @@
+#my-app.j2.sample
+
+# A SAMPLE FOR railsapp MONIT CHECK
+# SEE https://gist.github.com/joeyimbasciano/3996208
+
+check host appsrv1 with address 127.0.0.1
+    start program = "/sbin/start myapp"
+    stop program  = "/sbin/stop myapp"
+    alert alerts@example.com on {timeout,connection}
+    if failed port 9009 protocol HTTP
+      request /
+      with timeout 3 seconds
+      then restart
+    if 10 restarts within 10 cycles then timeout
+if 10 restarts within 10 cycles then exec "/usr/bin/monit start aws-dns-healthcheck"

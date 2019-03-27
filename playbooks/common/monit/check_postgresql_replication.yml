@@ -1,0 +1,17 @@
+---
+- name: Copy watch_postgresql_replication checking script to server.
+  template:
+    src: service_checks/watch_postgresql_replication.sh.j2
+    dest: /etc/monit/scripts/watch_postgresql_replication.sh
+    owner: root
+    group: root
+    mode: 0744
+
+- name: Configure cron job for postgresql-replication checking script.
+  cron:
+    name: "Postgresql-Replication cron job"
+    minute: "*"
+    hour: "*"
+    user: root
+    job: /etc/monit/scripts/watch_postgresql_replication.sh
+    state: present

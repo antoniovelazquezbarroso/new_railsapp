@@ -1,0 +1,5 @@
+#postgresql_replica
+
+check file postgresql-replica
+  with path /etc/monit/scripts/postgresql_replication_state_monit_watch
+  if not match "sync_state | sync" then alert

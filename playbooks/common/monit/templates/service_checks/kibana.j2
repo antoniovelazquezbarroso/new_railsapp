@@ -1,0 +1,7 @@
+#kibana
+   
+if failed port 5601 protocol http then alert
+  start program = "/usr/sbin/service kibana start" with timeout 30 seconds
+  stop program  = "/usr/sbin/service kibana stop"
+  if failed host 127.0.0.1 port 5601 protocol http for 3 cycles then restart
+  if 5 restarts within 5 cycles then timeout

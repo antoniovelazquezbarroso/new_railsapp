@@ -44,9 +44,14 @@
         group: root
         mode: 0755
 
-    # THESE INCLUDED TASKS SET A MONIT CHECK OVER DATABASE REPLICATION
+    # THESE INCLUDED TASKS SET A MONIT CHECK OVER MYSQL DATABASE REPLICATION
 #    - include: check_mysql_replication.yml
 #      when: (mysql_replication_role is defined) and mysql_replication_role == 'slave'
+
+    # THESE IMPORTED TASKS SET A MONIT CHECK OVER POSTGRESQL DATABASE REPLICATION
+    - import_tasks: check_postgresql_replication.yml
+      when: inventory_hostname in groups['db']
+
 
     - name: Monit | Determine queued messages
       command: "ls -1 {{monit_eventqueue_directory}}/"

@@ -16,12 +16,3 @@
     - geerlingguy.kibana
 #    - geerlingguy.logstash
 
-  tasks:
-    - name: Install required Elasticsearch plugins
-      elasticsearch_plugin:
-        name: "{{ item }}"
-        state: present
-      with_items:
-      - ingest-user-agent
-      - ingest-geoip
-      notify: restart elasticsearch

@@ -6,17 +6,17 @@ monit_checked_services:
 #  - apache
   - backup  
   - cron
-#  - delayed_job
 #  - elasticsearch
+#  - kibana
 #  - logstash
 #  - mysql
   - nginx
   - ntp
 #  - postfix
   - postgresql
+  - postgresql_replica # THIS CHECK MUST BE SET ON MASTER  
   - puma
   - rsyslog
-#  -sidekiq
   - ssh
   - system
 # =============================================================================
