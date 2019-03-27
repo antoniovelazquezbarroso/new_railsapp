@@ -25,6 +25,9 @@ metricbeat_modules:
 
 filebeat_inputs_paths_logs:
   - /var/log/syslog
+  - /var/log/filebeat/filebeat
+  - /var/log/metricbeat/metricbeat
+  - /var/log/packetbeat/packetbeat
   - /opt/railsapp/log/puma.stdout.log
   - /opt/railsapp/log/puma.stderr.log
 

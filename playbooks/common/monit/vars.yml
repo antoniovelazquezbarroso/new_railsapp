@@ -6,11 +6,14 @@
 #    - backup
 #    - cron
 #    - elasticsearch
+#    - kibana
 #    - logstash
 #    - mysql
 #    - nginx
 #    - ntp
 #    - postfix
+#    - postgresql
+#    - postggresql_replica # THIS CHECK MUST BE SET ON MASTER
 #    - puma
 #    - rsyslog
 #    - ssh

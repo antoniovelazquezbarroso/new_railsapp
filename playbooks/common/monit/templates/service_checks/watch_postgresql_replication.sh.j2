@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# SEE playbooks/common/monit/main.yml
+# SEE service_checks/postgresql.j2
+
+#========  POSTGRESQL REPLICATION CHECK  =================================================
+# THIS POSTGRESQL_REPLICATION_CHECK SCRIPT watch_postgresql_replication.sh
+# WILL BE PLACED BY THE playbooks/common/monit/main.yml PLAYBOOK AT /etc/monit/scripts/ FOLDER
+# THE SCRIPT WILL BE RUN BY CRON (EVERY MINUTE) AS THE root USER,
+# CREATING THE FILE postgresql_replication_state_monit_watch (ALSO AT /etc/monit/scripts/ FOLDER)
+# MONIT WILL CHECK AND ALERT IF THE CONTENT OF THAT FILE DOES NOT MATCH 'sync_state | sync'
+
+
+CHECK_SYNC_STATE=`sudo -su postgres psql -x -c 'select sync_state from pg_stat_replication;' | grep 'sync_state | sync' ` 
+echo $CHECK_SYNC_STATE > /etc/monit/scripts/postgresql_replication_state_monit_watch
