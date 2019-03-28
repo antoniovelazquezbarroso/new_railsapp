@@ -9,11 +9,14 @@
 # Common variables.
 REMOTE="{{ backup_remote_connection }}"
 RSYNC=/usr/bin/rsync
+NOW=$(date +"%T")
 
 # Backup individual directories.
 {% for directory in backup_directories %}
 $RSYNC -aqz -e 'ssh {{ backup_remote_connection_ssh_options }}' --delete --exclude-from '{{ backup_path }}/backup-exclude.txt' {{ directory }} $REMOTE:{{ backup_remote_base_path }}/{{ backup_identifier }}
 {% endfor %}
+
+echo "LAST BACKUP RUN WAS $NOW" > /home/backup/backup_conf/backups_timestamp_monit_watch
 
 {% if backup_mysql %}
 # MySQL variables.

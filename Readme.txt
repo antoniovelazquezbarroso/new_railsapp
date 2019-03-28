@@ -41,10 +41,6 @@
 #         echo "LAST BACKUP RUN WAS $NOW" > /home/backup/backup_conf/backups_timestamp_monit_watch ,
 #         para poder vigilar la antiguedad de este archivo, y alertar si > 3h [ proceso de backup fallando])
 
-#   role backup/templates/backup.sh.j2, corregir errata
-#        (sobra 1 espacio trás signo = en MYSQL_CREDENTIALS= "-u {{... , lo que hace fallar los MysqlDumps)
-
-
 #   role backup/defaults/main.yml, cambiar backup_mysql a false para no hacer por default MysqlDump,
 #        lo que daría errores en los equipos sin MySQL. Así es fácil hacer override a true de backup_mysql,
 #        asignándola de modo condicional [ p.e. backup_mysql: ('db' in groupnames)] ver common/backup/vars.yml

@@ -40,12 +40,13 @@ backup_remote_connection_ssh_options: '-o StrictHostKeyChecking=no'
 #backup_remote_host_name: '192.168.1.10'
 #backup_remote_host_key: "{{ lookup('file', '/Users/antonio/.ssh/id_rsa.pub') }}" #  Mac
 # ================================================================================
-# MySQL database backup options.
-
-backup_mysql: ('db' in group_names)  # true ONLY IF MYSQL INSTALLED
-# backup_mysql: false  # The role default value is now false, because I changed it; 
-#   (see details in main Readme.txt and roles/geerlingguy.backup/defaults/main.yml)
-backup_mysql_user: dbdump
-backup_mysql_password: password
-backup_mysql_credential_file: ''
-# ================================================================================
+#         # MySQL database backup options.
+#         
+#         backup_mysql: ('db' in group_names)  # true ONLY IF MYSQL INSTALLED
+#         
+#         # backup_mysql: false  # The role default value is now false, because I changed it; 
+#         #   (see details in main Readme.txt and roles/geerlingguy.backup/defaults/main.yml)
+#         backup_mysql_user: dbdump
+#         backup_mysql_password: password
+#         backup_mysql_credential_file: ''
+#         # ================================================================================
