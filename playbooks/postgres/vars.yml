@@ -1,15 +1,30 @@
 ---
 #=================================================================================
 # FOLLOWING VARIABLES ARE ONLY USED FOR DB DUMPS
+
+# OJO CON LA ASIGNACION DE backup COMO dump_user
+# ES EL MISMO USUARIO DEL backup PLAYBOOK (playbooks/common/backup/main.yml)
+# PARA SEPARARLO HABRÍA QUE EJECUTAR CON EL NUEVO LOS PRIMEROS5 TASKS DEL backup PLAYBOOK
+# (PARA QUE EXISTA, TENGA CARPETA, TENGA CONFIGURACION Y CLAVES DE SSH)
+# User under which backup jobs will run.
+dump_user: backup
+# Path to where backups configuration will be stored.
+dump_path: /home/{{ dump_user }}/dump_conf
+
+# PROBABLY TO BE OVERWRITTEN THROUGH hostvars DEFINED VARIABLES
+# Databases to be dumped
 psql_dump_databases:
   - railsapp_production
 
 # Options to control where the db_dump is delivered.
-db_dump_identifier: "{{ inventory_hostname }}"
-db_dump_remote_connection: "{{ backup_user }}@192.168.1.10"
-db_dump_remote_base_path: "/share/homes/backup/backups"
-db_dump_remote_connection_ssh_options: '-o StrictHostKeyChecking=no'
-
+dump_identifier: "{{ inventory_hostname }}"
+dump_remote_connection: "{{ dump_user }}@192.168.1.10"
+dump_remote_base_path: /share/homes/{{ dump_user }}
+dump_remote_connection_ssh_options: '-o StrictHostKeyChecking=no'
+# Options to control when the db_dump is delivered
+dump_cron_job_state: present             # default value
+dump_hour: "03"            # Stagger backup times among servers
+dump_minute: "00"
 
 #=================================================================================
 # FOLLOWING VARIABLES ARE ONLY USED FOR DB REPLICATION
@@ -19,8 +34,7 @@ pgsqlrep_group_name_master: db
 pgsqlrep_master_address: "{{ groups['db'][0] }}"       # IF YOU WANT REPLICATION
 pgsqlrep_replica_address: "{{ groups['replica'][0] }}" # DON'T FORGET TO SET THIS
                                                        # DON'T FORGET TO SET THIS
- 
-
+# PROBABLY YOU WILL NEVER CHANGE ANY OF THE FOLLOWING 
 pgsqlrep_config_path: /etc/postgresql/9.5/main
 pgsqlrep_data_path: /var/lib/postgresql/9.5/main
 pgsqlrep_user: replicator

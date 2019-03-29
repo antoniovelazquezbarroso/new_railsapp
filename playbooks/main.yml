@@ -7,7 +7,7 @@
 
 
 - import_playbook: postgres/set_db_replica.yml
-#- import_playbook: postgres/set_db_dump.yml
+- import_playbook: postgres/set_db_dump.yml
 
 - import_playbook: common/monit/main.yml
 - import_playbook: common/beats/main.yml

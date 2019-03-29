@@ -1,0 +1,5 @@
+#postgresql_dump.j2 THIS CHECK MUST BE SET ON REPLICA
+
+check file postgresql-dump
+  with path /home/backup/dump_conf/dump_timestamp_monit_watch
+  if timestamp > 2 days then alert

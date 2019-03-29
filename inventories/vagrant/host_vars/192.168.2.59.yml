@@ -15,6 +15,7 @@ monit_checked_services:
 #  - postfix
   - postgresql
 #  - postgresql_replica # THIS CHECK MUST BE SET ON MASTER
+  - postgresql_dump     # THIS CHECK MUST BE SET ON A REPLICA 
 #  - puma
   - rsyslog
   - ssh
