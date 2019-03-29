@@ -1,0 +1,33 @@
+---
+# SEE https://github.com/jacoelho/ansible-postgresql-dump.git
+- hosts: replica
+  become: true  # you need sudo
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Ensure dumps folder exists.
+      file:
+        path: "{{ dump_path }}"
+        state: directory
+        owner: "{{ dump_user }}"
+        group: "{{ dump_user }}"
+        mode: 0775
+
+    - name: Copy dump script to server.
+      template:
+        src: dump.sh.j2
+        dest: "{{ dump_path }}/dump.sh"
+        owner: "{{ dump_user }}"
+        group: "{{ dump_user }}"
+        mode: 0744
+
+    - name: Configure dump cron job executing script.
+      cron:
+        name: "Dump cron job"
+        minute: "{{ dump_minute }}"
+        hour: "{{ dump_hour }}"
+        user: root # SCRIPT USER NEEDS TO BECOME postgresql postgres USER FOR pg_dump
+        job: "{{ dump_path }}/dump.sh"
+        state: "{{ dump_cron_job_state }}"

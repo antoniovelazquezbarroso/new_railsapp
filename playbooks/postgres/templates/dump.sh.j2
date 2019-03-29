@@ -1,0 +1,40 @@
+#!/bin/bash
+# {{ ansible_managed }}
+# DUMP POSTGRESQL DATABASES - SHELL SCRIPT - NEEDS TO BE RUN BY root (THROUGH CRON)
+# TO ALLOW YOU BECOME postgresql postgres USER FOR pg_dump (dump_user HAS NO SUDO PRIVS.)
+# Common variables.
+REMOTE="{{ dump_remote_connection }}"
+RSYNC=/usr/bin/rsync
+NOW=$(date +"%T")
+TODAY=$(date +"%Y-%m-%d")
+
+# Dump individual databases.
+{% for database in psql_dump_databases %}
+# pg_dump requires the folders to pre-exist
+mkdir -p {{ dump_path }}/dumps/{{ database }}
+sudo -su postgres pg_dump {{ database }} > {{ dump_path }}/dumps/{{ database }}/$TODAY-{{ database }}.sql
+{% endfor %}
+
+# Dump all databases, roles, tablespaces, etc
+mkdir -p {{ dump_path }}/dumps/{{ inventory_hostname }}
+sudo -su postgres pg_dumpall > {{ dump_path }}/dumps/{{ inventory_hostname }}/$TODAY-host-{{ inventory_hostname }}-all.sql
+
+# Sync the {{ dump_path }}/dumps directory 
+$RSYNC -aqz -e 'ssh {{ dump_remote_connection_ssh_options }}' --delete {{ dump_path }}/dumps $REMOTE:{{ dump_remote_base_path }}
+#$RSYNC -aqz -e 'ssh {{ dump_remote_connection_ssh_options }}' --delete --exclude-from '{{ dump_path }}/dump-exclude.txt' {{ dump_path }}/dumps $REMOTE:{{ dump_remote_base_path }}
+
+# THE FOLLOWING LINE REMOVES DUMPS OLDER THAN ONE WEEK
+# SEE https://www.howtogeek.com/howto/ubuntu/delete-files-older-than-x-days-on-linux/
+# SO THERE WILL BE ONLY SEVEN DAYS OF DUMPS (THOSE OF LAST WEEK)
+# AT THE {{ dump_path }}/dumps/ FOLDER ON THE replica MACHINE
+# THE FORMER RSYNC COMMAND WILL ALSO --delete THE REMOVED FILES ON THE REMOTE MACHINE (192.168.1.10)
+# BUT BECAUSE THERE IS A DAILY BACKUP OF THE dumps FOLDER ON THE REMOTE MACHINE (Qnap NAS on 192.168.1.10)
+# YOU CAN FIND IN THESE BACKUP A FULL STORY OF DUMPS WITH THE DESIRED daily/weekly/monthly PATTERN
+# THE PROGRAMMING OF THE BACKUPS NEEDS TO BE DONE AT THE REMOTE MACHINE (Qnap NAS on 192.168.1.10)
+#    #find {{ dump_path }}/dumps/* -mtime +7 -exec rm {} \;
+
+rm -r {{ dump_path }}/dumps
+#  THIS IS SIMPLER AND ALSO WORKS, BUT WILL NOT KEEP LAST WEEK COPIES ON THE replica MACHINE
+
+echo "LAST DUMP WAS $TODAY AT $NOW" > {{ dump_path}}/dump_timestamp_monit_watch
+logger "LAST DUMP WAS $TODAY AT $NOW FOR {{ inventory_hostname }}"
