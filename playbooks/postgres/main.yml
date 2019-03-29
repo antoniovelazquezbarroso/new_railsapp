@@ -2,9 +2,6 @@
 - hosts: db, replica
   become: true  # you need sudo
 
-  vars_files:   # only used for replication
-    - vars.yml
-
   handlers:
   - name: restart postgresql
     service:
@@ -27,20 +24,3 @@
       backrefs: yes
       line: "listen_addresses = '*'"
     notify: restart postgresql
-  
-  # TO SET REPLICATION
-  # This will run only when:
-  #  1.- pgsqlrep_master_address and pgsqlrep_replica_address are set (see vars.yml)
-  #  2.- replication has not been set before (recovery.conf not exists)
-  - name: Check if replication has already been set
-    stat: 
-      path: "{{ pgsqlrep_data_path }}/recovery.conf"
-    register: recovery_conf
-    delegate_to: "{{ groups['replica'][0] }}"
-
-  - import_tasks: replica.yml
-    when: recovery_conf.stat.exists == False
-  # If you want to "reset replication" (delete the old replica and build a new one)
-  # you should first delete the {{ pgsqlrep_data_path }}/recovery.conf file at replica
-  # and then run the playbooks/postgres/main.yml playbook
-    

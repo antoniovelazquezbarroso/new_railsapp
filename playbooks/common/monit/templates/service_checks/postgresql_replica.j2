@@ -1,5 +1,5 @@
-#postgresql_replica
+#postgresql_replica THIS CHECK MUST BE SET ON MASTER
 
 check file postgresql-replica
-  with path /etc/monit/scripts/postgresql_replication_state_monit_watch
-  if not match "sync_state | sync" then alert
+  with path /etc/monit/scripts/postgresql_replica_monit_watch
+  if timestamp > 3 minutes then alert

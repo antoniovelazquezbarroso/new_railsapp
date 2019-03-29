@@ -5,11 +5,19 @@
 
 #========  POSTGRESQL REPLICATION CHECK  =================================================
 # THIS POSTGRESQL_REPLICATION_CHECK SCRIPT watch_postgresql_replication.sh
-# WILL BE PLACED BY THE playbooks/common/monit/main.yml PLAYBOOK AT /etc/monit/scripts/ FOLDER
+# WILL BE PLACED BY THE PLAYBOOK playbooks/common/monit/main.yml  AT FOLDER /etc/monit/scripts/ 
 # THE SCRIPT WILL BE RUN BY CRON (EVERY MINUTE) AS THE root USER,
-# CREATING THE FILE postgresql_replication_state_monit_watch (ALSO AT /etc/monit/scripts/ FOLDER)
-# MONIT WILL CHECK AND ALERT IF THE CONTENT OF THAT FILE DOES NOT MATCH 'sync_state | sync'
-
+# CREATING THE FILE postgresql_replica_monit_watch (ALSO AT FOLDER /etc/monit/scripts/)
+# MONIT WILL CHECK AND ALERT IF THE FILE NOT EXISTS
+NOW=$(date +"%T")
+TODAY=$(date +"%Y-%m-%d")
 
 CHECK_SYNC_STATE=`sudo -su postgres psql -x -c 'select sync_state from pg_stat_replication;' | grep 'sync_state | sync' ` 
-echo $CHECK_SYNC_STATE > /etc/monit/scripts/postgresql_replication_state_monit_watch
+
+if [ "sync_state | sync" == "$CHECK_SYNC_STATE" ]
+then
+   echo "LAST REPLICATION CHECK WAS $TODAY AT $NOW" > /etc/monit/scripts/postgresql_replica_monit_watch
+else
+   rm /etc/monit/scripts/postgresql_replica_monit_watch
+fi
+exit

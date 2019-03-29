@@ -14,6 +14,7 @@ firewall_allowed_tcp_ports:
   - "4949" # munin
   - "5044" # logstash_listen_port_beats
   - "5400" # filebeat
+  - "5432" # postgresql
   - "5601" # kibana
   - "5666" # nagios-nrpe-server-port
   - "9200" # elasticsearch
