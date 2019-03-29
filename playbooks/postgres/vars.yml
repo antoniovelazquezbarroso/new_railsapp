@@ -1,6 +1,26 @@
 ---
+#=================================================================================
+# FOLLOWING VARIABLES ARE ONLY USED FOR DB DUMPS
+psql_dump_databases:
+  - railsapp_production
+
+# Options to control where the db_dump is delivered.
+db_dump_identifier: "{{ inventory_hostname }}"
+db_dump_remote_connection: "{{ backup_user }}@192.168.1.10"
+db_dump_remote_base_path: "/share/homes/backup/backups"
+db_dump_remote_connection_ssh_options: '-o StrictHostKeyChecking=no'
+
+
+#=================================================================================
+# FOLLOWING VARIABLES ARE ONLY USED FOR DB REPLICATION
 # SEE. https://github.com/samdoran/ansible-role-pgsql-replication
-# VARIABLES ARE ONLY USED FOR REPLICATION
+pgsqlrep_group_name: replica
+pgsqlrep_group_name_master: db
+pgsqlrep_master_address: "{{ groups['db'][0] }}"       # IF YOU WANT REPLICATION
+pgsqlrep_replica_address: "{{ groups['replica'][0] }}" # DON'T FORGET TO SET THIS
+                                                       # DON'T FORGET TO SET THIS
+ 
+
 pgsqlrep_config_path: /etc/postgresql/9.5/main
 pgsqlrep_data_path: /var/lib/postgresql/9.5/main
 pgsqlrep_user: replicator
@@ -10,12 +30,6 @@ pgsqlrep_max_wal_senders: "{{ groups[pgsqlrep_group_name] | length * 2 }}"
 pgsqlrep_wal_keep_segments: 100
 pgsqlrep_synchronous_commit: local
 pgsqlrep_application_name: postgresql_replica
-
-pgsqlrep_group_name: replica
-pgsqlrep_group_name_master: db
-                                                       # IF YOU WANT REPLICATION
-pgsqlrep_master_address: "{{ groups['db'][0] }}"       # DON'T FORGET TO SET THIS
-pgsqlrep_replica_address: "{{ groups['replica'][0] }}" # DON'T FORGET TO SET THIS
 
 pgsqlrep_postgres_conf_lines:
   - regexp: '#?wal_level = \w+(\s+#.*)'
@@ -32,3 +46,4 @@ pgsqlrep_postgres_conf_lines:
 
   - regexp: '#?synchronous_commit = \w+(\s+#.*)'
     line: 'synchronous_commit = {{ pgsqlrep_synchronous_commit }}\1'
+#=================================================================================

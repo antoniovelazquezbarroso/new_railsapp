@@ -31,8 +31,8 @@ mysql_server_id: 1
 # so your backup server doesn't get a huge influx of data at once.
 # Backup cron job options.
 backup_cron_job_state: present             # default value
-backup_hour: "03"            # Stagger backup times among servers
-backup_minute: "00"         # Stagger backup times among servers
+backup_hour: "11"            # Stagger backup times among servers
+backup_minute: "05"         # Stagger backup times among servers
 
 # Directories and files to back up.
 # The {{ backup_user }} must have read access to these dirs.

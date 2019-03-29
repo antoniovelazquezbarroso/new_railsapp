@@ -1,0 +1,144 @@
+---
+- hosts: db, replica
+  become: true  # you need sudo
+
+  vars_files:
+    - vars.yml
+
+  handlers:
+  - name: restart postgresql
+    service:
+      name: postgresql
+      state: restarted
+
+  tasks:
+  - name: Check if replication has already been set
+    stat: 
+      path: "{{ pgsqlrep_data_path }}/recovery.conf"
+    register: recovery_conf
+    delegate_to: "{{ groups['replica'][0] }}"
+
+  - block:
+      - name: End play if replication has already been set
+        debug:
+          msg: "Replication already set, ending play replica."
+  
+      - meta: end_play       
+    when: recovery_conf.stat.exists == True
+    # If you want to "reset replication" (delete the old replica and build a new one)
+    # you should first delete the {{ pgsqlrep_data_path }}/recovery.conf file at replica
+    # and then run again this playbook
+
+
+  # SEE https://github.com/samdoran/ansible-role-pgsql-replication
+  # FIRST SET OF TASKS TO RUN ON MASTER, SECOND SET OF TASKS TO RUN ON REPLICA
+  #
+  # MASTER
+  # The following tasks run only when setting MASTER
+  # (when: pgsqlrep_master_address is defined and inventory_hostname == pgsqlrep_master_address)
+  # pgsqlrep_master_address needs to be set in vars.yml file if you want replication
+  - block:
+      - name: Configure master server
+        lineinfile:
+          state: present
+          backrefs: true
+          dest: "{{ pgsqlrep_config_path }}/postgresql.conf"
+          regexp: "{{ item.regexp }}"
+          line: "{{ item.line }}"
+        with_items: "{{ pgsqlrep_postgres_conf_lines }}"
+        notify: restart postgresql
+
+      - name: Create replication user account
+        postgresql_user:
+          name: "{{ pgsqlrep_user }}"
+          password: "{{ pgsqlrep_password }}"
+          role_attr_flags: replication
+        become: true
+        become_user: postgres
+        # See: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
+        # Avoid problems becoming postgres user
+        vars:
+          ansible_ssh_pipelining: true
+      
+      - name: Add trust in pg_hba.conf
+        lineinfile:
+          state: present
+          dest: "{{ pgsqlrep_config_path }}/pg_hba.conf"
+          regexp: 'host.*replication.*{{ item }}/32.*trust'
+          line: 'host    replication    {{ pgsqlrep_user }}  {{ item }}/32 trust'
+        become: yes
+        become_user: postgres
+        # See: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
+        # Avoid problems becoming postgres user
+        vars:
+            ansible_ssh_pipelining: true
+        with_items: "{{ pgsqlrep_replica_address }}"
+        notify: restart postgresql
+        
+    when: pgsqlrep_master_address is defined and inventory_hostname == pgsqlrep_master_address
+
+
+  # NEXT TWO TASKS ALLOW THE LATER Create base backup TASK NOT TO FAIL
+  - name: Force all notified handlers to run at this point, not waiting for normal sync points
+    meta: flush_handlers
+
+  - name: Hold until Postgresql is up and running
+    wait_for:
+      host: "{{ pgsqlrep_master_address }}"
+      port: 5432
+    
+  # END OF MASTER
+  #
+  # REPLICA
+  # The following tasks run only when setting REPLICA 
+  # (when: pgsqlrep_replica_address is defined and inventory_hostname == pgsqlrep_replica_address)
+  # pgsqlrep_replica_address needs to be set in vars.yml file if you want replication
+  - block:
+      - name: Stop PostgreSQL
+        service:
+          name: postgresql
+          state: stopped
+        
+      - name: Clear out data directory
+        shell: rm -rf {{ pgsqlrep_data_path }}/* warn=False
+      
+      - name: Create base backup
+        command: pg_basebackup -X stream -D {{ pgsqlrep_data_path }} -h {{ groups['db'][0] }} -U {{ pgsqlrep_user }}
+        become: true
+        become_user: postgres
+        # See: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
+        # Avoid problems becoming postgres user
+        vars:
+          ansible_ssh_pipelining: true
+      
+      - name: Create recovery.conf
+        template:
+          src: recovery.conf.j2
+          dest: "{{ pgsqlrep_data_path }}/recovery.conf"
+          owner: postgres
+          group: postgres
+          mode: '0644'
+      
+      - name: Enable hot standby
+        lineinfile:
+          state: present
+          backup: true
+          dest: "{{ pgsqlrep_config_path }}/postgresql.conf"
+          regexp: '^#?hot_standby = \w+(\s+#.*)'
+          line: 'hot_standby = yes\1'
+          backrefs: true
+        become: true
+        become_user: postgres
+        # See: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
+        # Avoid problems becoming postgres user
+        vars:
+          ansible_ssh_pipelining: true
+      
+      - name: Start and enable PostgreSQL
+        service:
+          name: postgresql
+          state: started
+          enabled: true
+
+    when: pgsqlrep_replica_address is defined and inventory_hostname == pgsqlrep_replica_address
+  # END OF REPLICA

@@ -5,7 +5,6 @@
 - src: rvm.ruby
 
 # COMMON SERVICES
-- src: geerlingguy.backup
 - src: geerlingguy.firewall
 - src: geerlingguy.ntp
 - src: geerlingguy.security
