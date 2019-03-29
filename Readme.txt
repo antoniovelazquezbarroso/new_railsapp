@@ -32,19 +32,6 @@
 #         Symlink bundler binaries on the system path
 #         es solo por estetica, para que no salga recurrentemente como "changed" al correr el playbook
 
-#   role logstash/tasks/main.yml, # comment the line - include: config.yml at tasks/main.yml
-#         to avoid creating the legacy configuration of the role (in fact it seems not to work)
-#         es solo por estetica, para que no salga recurrentemente como "changed" al correr el playbook
-
-#   role backup/templates/backup.sh.j2, incluir monit check
-#        (añadir NOW=$(date +"%T"), y
-#         echo "LAST BACKUP RUN WAS $NOW" > /home/backup/backup_conf/backups_timestamp_monit_watch ,
-#         para poder vigilar la antiguedad de este archivo, y alertar si > 3h [ proceso de backup fallando])
-
-#   role backup/defaults/main.yml, cambiar backup_mysql a false para no hacer por default MysqlDump,
-#        lo que daría errores en los equipos sin MySQL. Así es fácil hacer override a true de backup_mysql,
-#        asignándola de modo condicional [ p.e. backup_mysql: ('db' in groupnames)] ver common/backup/vars.yml
-#        o definirla con host_vars/group_vars adecuados.
 # ==========================================================================================================
 
 ## Building the VMs

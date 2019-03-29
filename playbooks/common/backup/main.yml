@@ -4,11 +4,9 @@
   vars_files:
     - vars.yml
 
-  pre_tasks:
-
-#  Configure backup user account with SSH authentication keys
-#  that allow him to deliver backups via SSH
-#  to the Remote Backup Server (Qnap)
+  tasks:
+#  Configure backup user account with folder and SSH config and authentication keys 
+#  that allow him to deliver backups via SSH to the Remote Backup Server (Qnap)
     - name: Add or update backup user
       user:
         name: "{{ backup_user }}"
@@ -32,6 +30,7 @@
         group: "{{ backup_user }}"
         mode: 0700
 
+    # SETTING Host 192.168.1.10   IdentityFile ~/.ssh/backup
     - name: Copy ssh client config file (for backup user)
       copy:
         src: ssh_config
@@ -56,8 +55,8 @@
         group: "{{ backup_user }}"
         mode: 0644
 
-#     NO ME GUSTA LA SIGUIENTE SOLUCIÓN (¿NO SOBREESCRIBE EL GRUPO DEL RAILSAPP FOLDER?)
-#     ¿COMO DARLE DERECHOS DE LECTURA SOBRE syslog (¿Hacerle del grupo adm?)
+#     NO ME GUSTA LA SIGUIENTE SOLUCIÓN (¿NO SOBREESCRIBE EL GRUPO DEL FILE O FOLDER?)
+#     ¿COMO DARLE DERECHOS DE LECTURA SOBRE syslog (¿Hacerle del grupo adm?)?
 #    - name: Ensure backup user permissions over the folders to be backed up
 #      file:
 #        path: "{{ item }}"
@@ -66,5 +65,35 @@
 #        mode: 0775
 #      with_items: backup_directories
 
-  roles:
-    - geerlingguy.backup
+    - name: Ensure backup folder exists.
+      file:
+        path: "{{ backup_path }}"
+        state: directory
+        owner: "{{ backup_user }}"
+        group: "{{ backup_user }}"
+        mode: 0775
+    
+    - name: Copy backup script to server.
+      template:
+        src: backup.sh.j2
+        dest: "{{ backup_path }}/backup.sh"
+        owner: "{{ backup_user }}"
+        group: "{{ backup_user }}"
+        mode: 0744
+    
+    - name: Copy excludes file to server.
+      template:
+        src: backup-exclude.txt.j2
+        dest: "{{ backup_path }}/backup-exclude.txt"
+        owner: "{{ backup_user }}"
+        group: "{{ backup_user }}"
+        mode: 0644
+    
+    - name: Configure backup cron job.
+      cron:
+        name: "Backup cron job"
+        minute: "{{ backup_minute }}"
+        hour: "{{ backup_hour }}"
+        user: "{{ backup_user }}"
+        job: "{{ backup_path }}/backup.sh"
+        state: "{{ backup_cron_job_state }}"

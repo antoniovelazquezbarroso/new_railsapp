@@ -1,0 +1,17 @@
+#!/bin/bash
+# {{ ansible_managed }}
+# Backup for simple servers - shell script.
+# SEE https://github.com/geerlingguy/ansible-role-backup 
+
+# Common variables.
+REMOTE="{{ backup_remote_connection }}"
+RSYNC=/usr/bin/rsync
+NOW=$(date +"%T")
+TODAY=$(date +"%Y-%m-%d")
+
+# Backup individual directories.
+{% for directory in backup_directories %}
+$RSYNC -aqz -e 'ssh {{ backup_remote_connection_ssh_options }}' --delete --exclude-from '{{ backup_path }}/backup-exclude.txt' {{ directory }} $REMOTE:{{ backup_remote_base_path }}/{{ backup_identifier }}/$TODAY
+{% endfor %}
+
+echo "LAST BACKUP RUN WAS $TODAY AT $NOW" > /home/backup/backup_conf/backups_timestamp_monit_watch
