@@ -1,14 +1,43 @@
 ---
 # =============================================================================
-# Services to be monitored by monit checks ( etc/monit/conf.d/)
+# Firewall
+# See playbook common/firewall/vars.yml
+firewall_state: started
+firewall_enabled_at_boot: true
+firewall_allowed_tcp_ports:
+  - "22"   # ssh
+#  - "25"   # postfix
+  - "80"   # http
+  - "123"  # ntp
+#  - "443"  # https
+  - "2812" # monit web interface
+#  - "3306" # mysql-server
+#  - "5044" # logstash_listen_port_beats
+#  - "5400" # filebeat
+  - "5432" # postgresql
+#  - "5601" # kibana
+#  - "9200" # elasticsearch
+  - "9292" # puma
+
+#firewall_additional_rules:
+#  # Allow mysql-replication traffic from mysql-master (192.168.2.30)
+#  # We don´t know what will be the port being called
+#  - "iptables -A INPUT -p tcp -s 192.168.2.30 -j ACCEPT"
+#  # Ignore Dropbox LAN Sync broadcasts(17500) and similars (137, 138)
+#  - "iptables -A INPUT -p udp -m udp --dport 17500 -j DROP"
+#  - "iptables -A INPUT -p udp -m udp --dport 137 -j DROP"
+#  - "iptables -A INPUT -p udp -m udp --dport 138 -j DROP"
+
+# =============================================================================
+# Monit checks
 # See playbook common/monit/vars.yml
+# Services to be monitored by monit checks (etc/monit/conf.d/)
 monit_checked_services:
 #  - apache
   - backup  
   - cron
 #  - elasticsearch
 #  - kibana
-#  - logstash
 #  - mysql
   - nginx
   - ntp
@@ -20,28 +49,65 @@ monit_checked_services:
   - rsyslog
   - ssh
   - system
+
 # =============================================================================
-# MySQL replication: master or slave role
-# See playbook mysql/vars.yml and inventory(these variables lived there before)
-mysql_replication_role: slave
-mysql_server_id: 2
+#              # MySQL replication: master or slave role
+#              # See playbook mysql/vars.yml and inventory(these variables lived there before)
+#              mysql_replication_role: slave
+#              mysql_server_id: 2
+
+# =============================================================================
+# Variables for beats configuration
+# See playbook common/beats/vars.yml
+filebeat_modules:
+  - nginx
+  - postgresql
+#  - mysql
+  - system
+#  - elasticsearch
+#  - kibana
+
+metricbeat_modules:
+  - nginx
+  - postgresql
+#  - mysql
+  - system
+#  - elasticsearch
+#  - kibana
+  - http
+
+filebeat_inputs_paths_logs:
+  - /var/log/syslog
+  - /var/log/monit.log
+#  - /var/log/filebeat/filebeat
+#  - /var/log/metricbeat/metricbeat
+#  - /var/log/packetbeat/packetbeat
+  - /opt/railsapp/log/puma.stdout.log
+  - /opt/railsapp/log/puma.stderr.log
+
+filebeat_inputs_paths_json:
+  - /opt/railsapp/log/production.json
+  - /var/log/nginx/access.json
+
 # =============================================================================
 # Backups
-
+# See playbook common/backup/vars.yml
 # Scheduling of backup cron jobs.You should stagger backup times among servers,
 # so your backup server doesn't get a huge influx of data at once.
 # Backup cron job options.
 backup_cron_job_state: present             # default value
-backup_hour: "11"            # Stagger backup times among servers
-backup_minute: "00"         # Stagger backup times among servers
+backup_hour: "03"            # Stagger backup times among servers
+backup_minute: "45"         # Stagger backup times among servers
 
 # Directories and files to back up.
 # The {{ backup_user }} must have read access to these dirs.
 # See playbook common/backup/vars.yml
 backup_directories:
   - /home/{{ backup_user }}/backup_conf
-#  - /opt/railsapp/log
+  - /home/{{ backup_user }}/dump_conf
+  - /opt/railsapp/log
   - /etc/crontab
+  - /etc
 #  - /home/{{ backup_user }}/domains       # default value
 #  - /home/{{ backup_user }}/repositories  # default value
 
@@ -50,4 +116,23 @@ backup_exclude_items:
   - .DS_Store
 #  - cache
 #  - tmp
+
+# =============================================================================
+#       # Dumps
+#       # See playbook postgres/set_db_dump.yml and file postgres/vars.yml
+#       # AS OF NOW, THE CONFIG FOR THESE IS AT /playbooks/postgres/vars.yml
+#       # Databases to be dumped
+#       psql_dump_databases:
+#         - railsapp_production
+#       
+# =============================================================================
+# Logrotate
+# See playbook common/logrotate/vars.yml
+logrotate_scripts:
+  - monit
+#  - mysql-server
+  - nginx
+  - railsapp
+  - rsyslog
+
 # =============================================================================

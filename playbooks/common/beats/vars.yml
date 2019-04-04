@@ -6,31 +6,33 @@ beats:
   - metricbeat
   - packetbeat
 
-filebeat_modules:
-  - nginx
-  - postgresql
-  - mysql
-  - system
-  - elasticsearch
-  - kibana
-
-metricbeat_modules:
-  - nginx
-  - postgresql
-  - mysql
-  - system
-  - elasticsearch
-  - kibana
-  - http
-
-filebeat_inputs_paths_logs:
-  - /var/log/syslog
-  - /var/log/filebeat/filebeat
-  - /var/log/metricbeat/metricbeat
-  - /var/log/packetbeat/packetbeat
-  - /opt/railsapp/log/puma.stdout.log
-  - /opt/railsapp/log/puma.stderr.log
-
-filebeat_inputs_paths_json:
-  - /opt/railsapp/log/production.json
-  - /var/log/nginx/access.json
+# OVERWRITTEN THROUGH hostvars DEFINED VARIABLES
+#filebeat_modules:
+#  - nginx
+#  - postgresql
+#  - mysql
+#  - system
+#  - elasticsearch
+#  - kibana
+#
+#metricbeat_modules:
+#  - nginx
+#  - postgresql
+#  - mysql
+#  - system
+#  - elasticsearch
+#  - kibana
+#  - http
+#
+#filebeat_inputs_paths_logs:
+#  - /var/log/syslog
+#  - /var/log/monit.log
+#  - /var/log/filebeat/filebeat
+#  - /var/log/metricbeat/metricbeat
+#  - /var/log/packetbeat/packetbeat
+#  - /opt/railsapp/log/puma.stdout.log
+#  - /opt/railsapp/log/puma.stderr.log
+#
+#filebeat_inputs_paths_json:
+#  - /opt/railsapp/log/production.json
+#  - /var/log/nginx/access.json
