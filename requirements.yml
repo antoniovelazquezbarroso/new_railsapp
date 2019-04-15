@@ -1,4 +1,5 @@
 ---
+- src: geerlingguy.mysql
 - src: geerlingguy.git
 - src: geerlingguy.nodejs
 - src: rvm.ruby

@@ -1,0 +1,10 @@
+---
+- hosts: db
+  become: yes
+
+  pre_tasks:
+  - name: package update (apt)
+    apt: update_cache=yes cache_valid_time=3600
+
+  roles:
+    - geerlingguy.mysql

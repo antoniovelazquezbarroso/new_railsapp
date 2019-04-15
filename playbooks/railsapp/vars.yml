@@ -16,7 +16,7 @@ app_environment:
 my_ruby_version: 2.3.8
 
 # Variables for database configuration
-db_type: postgres        #(values: postgres, mysql or sqlite)
+db_type: mysql        #(values: postgres, mysql or sqlite)
 db_database_name: "{{ app_name }}_production"
 db_username: "{{ app_name }}"      # OJO CON ESTA DOBLE ASIGNACION
 db_password: "{{ app_name }}"      # OJO CON ESTA DOBLE ASIGNACION

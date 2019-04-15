@@ -1,5 +1,6 @@
 ---
-- import_playbook: postgres/main.yml
+#- import_playbook: postgres/main.yml
+- import_playbook: mysql/main.yml
 - import_playbook: nginx/main.yml
 - import_playbook: railsapp/main.yml
 
