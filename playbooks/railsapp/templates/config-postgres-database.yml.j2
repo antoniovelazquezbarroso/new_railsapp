@@ -20,13 +20,10 @@ test:
   <<: *default
   database: myticketee_pg_test
 
-
-# AMMENDED THE FOLLOWING BLOCK
 production:
   <<: *default
-  database: "{{ db_database_name }}"
-  username: "{{ db_username }}"
-  password: "{{ db_password }}"
+  database: <%= Rails.application.credentials.db_database_name %>
+  username: <%= Rails.application.credentials.db_username %>
+  password: <%= Rails.application.credentials.db_password %>
   host: "{{ groups['db'][0] }}"
   port: 5432
-# END OF AMMENDED BLOCK
