@@ -85,9 +85,9 @@ filebeat_inputs_paths_logs:
 #  - /opt/railsapp/log/puma.stdout.log
 #  - /opt/railsapp/log/puma.stderr.log
 
-filebeat_inputs_paths_json: []
+filebeat_inputs_paths_json: #[]
 #  - /opt/railsapp/log/production.json
-#  - /var/log/nginx/access.json
+  - /var/log/nginx/access.json
 
 # =============================================================================
 # Backups
