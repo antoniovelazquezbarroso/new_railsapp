@@ -9,7 +9,7 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
 
   config.vm.provider :virtualbox do |v|
-    v.memory = 512
+    v.memory = 1024
     v.cpus = 1
   end
 
@@ -17,7 +17,7 @@ Vagrant.configure("2") do |config|
   boxes = [
     { :name => "vm49", :ip => "192.168.2.49" },  # FOR MONITORING AND DB REPLICATION
     { :name => "vm59", :ip => "192.168.2.59" },  # app1 RAILS, web AND db SERVER (MASTER)
-#    { :name => "vm69", :ip => "192.168.2.69" },  # app2 RAILS SERVER
+    { :name => "vm69", :ip => "192.168.2.69" },  # app2 RAILS SERVER
 #    { :name => "vm70", :ip => "192.168.2.70" }, # FOR FUTURE NEEDS (¿¿ ??)
   ]
 
@@ -28,12 +28,12 @@ Vagrant.configure("2") do |config|
       config.vm.network :private_network, ip: opts[:ip]
 
       # Provision all the VMs using Ansible after last VM is up.
-      if opts[:name] == "vm59"
+      if opts[:name] == "vm69"
 #      if opts[:name] == "vm70"         # The last vhost
 
 #     vm59 hosts ELK, with heavy memory requirements
         config.vm.provider :virtualbox do |v|
-          v.memory = 3072
+          v.memory = 4096
           v.cpus = 1
         end
 

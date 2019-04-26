@@ -1,6 +1,7 @@
 upstream {{ upstream }} {
 # ip-hash;     # commented out for testing
   server {{ groups['app'][0] }}:9292;
+  server {{ groups['app'][1] }}:9292;  
 #  server unix://{{ app_directory }}/tmp/sockets/puma.sock;
 }
 
